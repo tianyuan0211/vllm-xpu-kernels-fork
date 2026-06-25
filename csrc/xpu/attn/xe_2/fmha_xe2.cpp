@@ -301,9 +301,20 @@ void cutlass_chunk_prefill_impl(
           is_sink,
           is_lse);
     } else if (args.head_size <= HEAD_SIZE_LIMIT_3) {
-      // Asymmetric QK=192 / V=128 (e.g. MiMo) uses a tile whose output width
-      // follows V; symmetric V=192 keeps the standard policy.
-      if (args.head_size == 192 && args.v_head_size == 128) {
+      // Asymmetric QK=192 / V=128 (e.g. MiMo) uses q128 for short prefill and
+      // the b16 tile for longer block_size=16 sequences.
+      if (args.head_size == 192 && args.v_head_size == 128 &&
+          max_seqlen_q <= 1024) {
+        policy_dispatch_func<chunk_policy_head192_vo128_q128>(
+            queue,
+            cuQKType,
+            args,
+            is_paged,
+            is_causal,
+            is_local,
+            is_sink,
+            is_lse);
+      } else if (args.head_size == 192 && args.v_head_size == 128) {
         policy_dispatch_func<chunk_policy_head192_vo128_b16>(
             queue,
             cuQKType,
@@ -357,9 +368,13 @@ void cutlass_chunk_prefill_impl(
     policy_dispatch_func<chunk_policy_head128>(
         queue, cuQKType, args, is_paged, is_causal, is_local, is_sink, is_lse);
   } else if (args.head_size <= HEAD_SIZE_LIMIT_3) {
-    // Asymmetric QK=192 / V=128 (e.g. MiMo) uses a tile whose output width
-    // follows V; symmetric V=192 keeps the standard policy.
-    if (args.head_size == 192 && args.v_head_size == 128) {
+    // Asymmetric QK=192 / V=128 (e.g. MiMo) uses q128 for short prefill and
+    // the default 256-row tile for longer sequences.
+    if (args.head_size == 192 && args.v_head_size == 128 &&
+      max_seqlen_q <= 1024) {
+      policy_dispatch_func<chunk_policy_head192_vo128_q128>(
+          queue, cuQKType, args, is_paged, is_causal, is_local, is_sink, is_lse);
+    } else if (args.head_size == 192 && args.v_head_size == 128) {
       policy_dispatch_func<chunk_policy_head192_vo128>(
           queue, cuQKType, args, is_paged, is_causal, is_local, is_sink, is_lse);
     } else {
