@@ -12,12 +12,15 @@
   X(chunk_policy_head96)      \
   X(chunk_policy_head128)     \
   X(chunk_policy_head192)     \
+  X(chunk_policy_head192_vo128) \
+  X(chunk_policy_head192_vo128_q128) \
   X(chunk_policy_head256)     \
   X(chunk_policy_head512)     \
   X(chunk_policy_head64_b16)  \
   X(chunk_policy_head96_b16)  \
   X(chunk_policy_head128_b16) \
   X(chunk_policy_head192_b16) \
+  X(chunk_policy_head192_vo128_b16) \
   X(chunk_policy_head256_b16) \
   X(chunk_policy_head512_b16)
 

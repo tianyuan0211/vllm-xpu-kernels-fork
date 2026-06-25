@@ -1,5 +1,7 @@
 #include "fmha_xe2.h"
 #include "chunk_prefill_utils.hpp"
+#include <cstdlib>
+#include <cstring>
 // Use the generated extern header (only declares enabled policies)
 #if __has_include("chunk_prefill_extern_gen.hpp")
   #include "chunk_prefill_extern_gen.hpp"
@@ -359,7 +361,13 @@ void cutlass_chunk_prefill_impl(
   } else if (args.head_size <= HEAD_SIZE_LIMIT_3) {
     // Asymmetric QK=192 / V=128 (e.g. MiMo) uses a tile whose output width
     // follows V; symmetric V=192 keeps the standard policy.
-    if (args.head_size == 192 && args.v_head_size == 128) {
+    const char* chunk_prefill_policy = std::getenv("VLLM_CHUNK_PREFILL_POLICY");
+    if (args.head_size == 192 && args.v_head_size == 128 &&
+        chunk_prefill_policy != nullptr &&
+        std::strcmp(chunk_prefill_policy, "q128") == 0) {
+      policy_dispatch_func<chunk_policy_head192_vo128_q128>(
+          queue, cuQKType, args, is_paged, is_causal, is_local, is_sink, is_lse);
+    } else if (args.head_size == 192 && args.v_head_size == 128) {
       policy_dispatch_func<chunk_policy_head192_vo128>(
           queue, cuQKType, args, is_paged, is_causal, is_local, is_sink, is_lse);
     } else {

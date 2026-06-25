@@ -90,6 +90,13 @@ struct chunk_policy_head192_vo128 {
   using SubgroupLayoutQK = Layout<Shape<_32, _1, _1>>;
 };
 
+struct chunk_policy_head192_vo128_q128 {
+  using ShapeQK = Shape<_128, _32, _32>;
+  using ShapePV = Shape<_128, _32, _32>;
+  using ShapeOut = Shape<_128, _128>;
+  using SubgroupLayoutQK = Layout<Shape<_16, _1, _1>>;
+};
+
 struct chunk_policy_head256 {
   using ShapeQK = Shape<_256, _32, _32>;
   using ShapePV = Shape<_256, _32, _32>;
